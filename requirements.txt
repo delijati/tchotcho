@@ -1,0 +1,9 @@
+boto3
+troposphere
+awacs
+click
+requests
+logma
+colorama
+tabulate
+pydantic

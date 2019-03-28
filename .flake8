@@ -1,0 +1,5 @@
+[flake8]
+# https://github.com/psf/black#slices for E203
+ignore = E501 W503 W504 E203
+max-line-length = 88
+max-complexity = 10
