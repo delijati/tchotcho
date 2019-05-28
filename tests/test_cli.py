@@ -10,6 +10,8 @@ from moto import mock_ec2
 from tchotcho.config import set_settings, Settings
 from tchotcho.__main__ import cli
 
+IMPORT_KEY = pathlib.Path(__file__).absolute().parent / "dummy.pub"
+
 
 @mock_ec2
 class TestCliKey(unittest.TestCase):
@@ -52,7 +54,11 @@ class TestCliKey(unittest.TestCase):
         self.assertTrue('{"KeyName":{"0":"test-key"},"KeyFi' in out)
 
     def test_import(self):
-        ...
+        with pytest.raises(SystemExit) as ex:
+            cli(["key", "import", "--name", "test-key", "--path", IMPORT_KEY])
+        self.assertEqual(ex.value.code, 0)
+        out, err = self.capsys.readouterr()
+        self.assertEqual(out, "Succesfully imported key test-key\n")
 
     def test_delete(self):
         self._create("test-key")
