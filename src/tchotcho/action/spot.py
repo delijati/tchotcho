@@ -36,10 +36,16 @@ class SpotManager(object):
         ret = prices["SpotPriceHistory"]
         return ret
 
-    def list(self, region=None, inst=[], method="future-process"):
+    def list(self, gpu, region=None, inst=[], method="future-process"):
         if len(inst) == 0:
             with open(self.settings.GPU_INFO_FILE) as f:
-                inst = list(json.load(f)["instance"].keys())
+                inst = json.load(f)["instance"]
+                if gpu:
+                    inst = [x["name"] for x in inst if x["gpu"] > 0 and
+                            x["supported"]]
+                else:
+                    inst = [x["name"] for x in inst]
+
         if not isinstance(inst, collections.abc.Sequence) or isinstance(inst, str):
             raise Exception("We need a list for inst!")
 
@@ -76,10 +82,12 @@ def spot():
 
 @spot.command(name="list")
 @click.option("--region", help="List spot prices in region")
+@click.option("--gpu/--no-gpu", default=True,
+              help="Limit results to show only GPU instances")
 @click.option("--inst", help="List spot prices for instance type", multiple=True)
 @click.option("--csv/--no-csv", default=False)
-def _list(region, inst, csv):
-    ret = mgr.list(region, inst)
+def _list(gpu, region, inst, csv):
+    ret = mgr.list(gpu, region, inst)
 
     def set_color(val):
         if val is not None:

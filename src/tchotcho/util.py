@@ -11,7 +11,7 @@ def boto_exception(fn):
             res = fn(self, *args, **kwargs)
         except botocore.exceptions.ClientError as ex:
             error_message = ex.response["Error"]["Message"]
-            log.exception("Boto error: %s" & error_message)
+            log.exception("Boto error: %s" % error_message)
         except Exception:
             log.exception(f"An error occured on: {fn.__name__}")
         return res

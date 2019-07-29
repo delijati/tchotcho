@@ -1,0 +1,148 @@
+{
+    "instance": [
+        {
+            "name": "g2.2xlarge",
+            "gpu": 1,
+            "cpu": 8,
+            "memory": 15.0,
+            "gpu_memory": 4,
+            "gpu_model": "NVIDIA GRID K520",
+            "storage": {
+                "devices": 1,
+                "includes_swap_partition": false,
+                "nvme_ssd": false,
+                "size": 60,
+                "ssd": true,
+                "storage_needs_initialization": true,
+                "trim_support": false
+            },
+            "supported": false,
+            "pricing": {
+                "ap-northeast-1": 0.898,
+                "ap-northeast-2": 0.898,
+                "ap-southeast-1": 1.0,
+                "ap-southeast-2": 0.898,
+                "eu-central-1": 0.772,
+                "eu-west-1": 0.702,
+                "us-east-1": 0.65,
+                "us-west-1": 0.702,
+                "us-west-2": 0.65
+            }
+        },
+        {
+            "name": "g3.8xlarge",
+            "gpu": 2,
+            "cpu": 32,
+            "memory": 244.0,
+            "gpu_memory": 16,
+            "gpu_model": "NVIDIA Tesla M60",
+            "storage": null,
+            "supported": true,
+            "pricing": {
+                "ap-northeast-1": 3.16,
+                "ap-northeast-2": 2.84,
+                "ap-southeast-1": 3.34,
+                "ap-southeast-2": 3.508,
+                "ca-central-1": 2.832,
+                "eu-central-1": 2.85,
+                "eu-west-1": 2.42,
+                "eu-west-2": 2.858,
+                "us-east-1": 2.28,
+                "us-east-2": 2.28,
+                "us-gov-west-1": 2.64,
+                "us-west-1": 3.068,
+                "us-west-2": 2.28
+            }
+        },
+        {
+            "name": "g2.8xlarge",
+            "gpu": 4,
+            "cpu": 32,
+            "memory": 60.0,
+            "gpu_memory": 32,
+            "gpu_model": "NVIDIA GRID K520",
+            "storage": {
+                "devices": 2,
+                "includes_swap_partition": false,
+                "nvme_ssd": false,
+                "size": 120,
+                "ssd": true,
+                "storage_needs_initialization": true,
+                "trim_support": false
+            },
+            "supported": false,
+            "pricing": {
+                "ap-northeast-1": 3.592,
+                "ap-northeast-2": 3.592,
+                "ap-southeast-1": 4.0,
+                "ap-southeast-2": 3.592,
+                "eu-central-1": 3.088,
+                "eu-west-1": 2.808,
+                "us-east-1": 2.6,
+                "us-west-1": 2.808,
+                "us-west-2": 2.6
+            }
+        },
+        {
+            "name": "t2.medium",
+            "gpu": 0,
+            "cpu": 2,
+            "memory": 4.0,
+            "gpu_memory": 0,
+            "gpu_model": null,
+            "storage": null,
+            "supported": false,
+            "pricing": {
+                "ap-northeast-1": 0.0608,
+                "ap-northeast-2": 0.0576,
+                "ap-northeast-3": 0.0608,
+                "ap-south-1": 0.0496,
+                "ap-southeast-1": 0.0584,
+                "ap-southeast-2": 0.0584,
+                "ca-central-1": 0.0512,
+                "eu-central-1": 0.0536,
+                "eu-west-1": 0.05,
+                "eu-west-2": 0.052,
+                "eu-west-3": 0.0528,
+                "sa-east-1": 0.0744,
+                "us-east-1": 0.0464,
+                "us-east-2": 0.0464,
+                "us-gov-west-1": 0.0544,
+                "us-west-1": 0.0552,
+                "us-west-2": 0.0464
+            }
+        }
+    ],
+    "ami": [
+        {
+            "region": "eu-central-1",
+            "name": "Deep Learning AMI (Ubuntu 18.04) Version 29.0",
+            "date": "2020-05-20T14:57:39.000Z",
+            "ami": "ami-062a3145bcf312c71"
+        },
+        {
+            "region": "eu-central-1",
+            "name": "Deep Learning AMI (Ubuntu 18.04) Version 28.1",
+            "date": "2020-05-03T19:46:44.000Z",
+            "ami": "ami-061aaaac62de85935"
+        },
+        {
+            "region": "eu-central-1",
+            "name": "Deep Learning AMI (Ubuntu 18.04) Version 28.0",
+            "date": "2020-04-29T09:32:42.000Z",
+            "ami": "ami-0f162c7e9b0e7d6f1"
+        },
+        {
+            "region": "eu-central-1",
+            "name": "Deep Learning AMI (Ubuntu 18.04) Version 27.0",
+            "date": "2020-03-03T03:13:27.000Z",
+            "ami": "ami-09633db638556dc39"
+        },
+        {
+            "region": "eu-central-1",
+            "name": "Deep Learning AMI (Ubuntu 18.04) Version 26.0",
+            "date": "2019-12-02T22:09:33.000Z",
+            "ami": "ami-0dcdcc4bc9e75005f"
+        }
+    ]
+}

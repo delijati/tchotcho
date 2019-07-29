@@ -7,6 +7,7 @@ import tabulate
 
 from tchotcho.log import log
 from tchotcho.config import get_settings
+from tchotcho.rsa import RSAFingerprintManager
 
 colorama.init()
 
@@ -16,11 +17,15 @@ class KeyManager:
         self.ec2 = boto3.client("ec2")
         self.settings = get_settings()
 
-    def add(self, name, path):
+    def _import(self, name, path):
+        ret = False
         with open(path, "rb") as f:
             data = f.read()
-        resp = self.ec2.import_key_pair(KeyName=name, PublicKeyMaterial=data,)
-        ret = False
+        if self.exists(name):
+            log.error(f"Key {name} already exists!")
+            return ret
+
+        resp = self.ec2.import_key_pair(KeyName=name, PublicKeyMaterial=data)
         if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
             log.info(f"Succesfully imported key {name} from {path}")
             ret = True
@@ -71,6 +76,15 @@ class KeyManager:
             ret = True
         return ret
 
+    def fingerprint(self, path, passphrase):
+        rsamgr = RSAFingerprintManager()
+        ret = {
+            "public": [rsamgr.get_public(path, passphrase)],
+            "private": [rsamgr.get_private(path, passphrase)]
+
+        }
+        return ret
+
 
 mgr = None
 
@@ -116,8 +130,9 @@ def create(name):
 @click.option("--name", help="Name of key to highlight", required=True)
 @click.option("--ask/--no-ask", default=True)
 def delete(name, ask):
-    mgr.delete(name, ask)
-    click.echo(f"Succesfully deleted key {name}")
+    ret = mgr.delete(name, ask)
+    if ret:
+        click.echo(f"Succesfully deleted key {name}")
 
 
 @key.command(name="import")
@@ -129,5 +144,29 @@ def delete(name, ask):
     type=click.Path(exists=True, resolve_path=True),
 )
 def _import(name, path):
-    mgr.add(name, path)
-    click.echo(f"Succesfully imported key {name}")
+    ret = mgr._import(name, path)
+    if ret:
+        click.echo(f"Succesfully imported key {name}")
+
+
+@key.command()
+@click.option(
+    "--path",
+    help="Path to key file",
+    required=True,
+    type=click.Path(exists=True, resolve_path=True),
+)
+@click.option('--passphrase', prompt=True, hide_input=True, default="")
+@click.option("--csv/--no-csv", default=False)
+def fingerprint(path, passphrase, csv):
+    ret = mgr.fingerprint(path, passphrase)
+
+    # apply to specific column
+    df = pd.DataFrame(ret)
+    to_print = df.to_json()
+
+    if not csv:
+        to_print = tabulate.tabulate(
+            df, headers="keys", tablefmt="fancy_grid", showindex="never"
+        )
+    print(to_print)

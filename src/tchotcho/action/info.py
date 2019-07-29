@@ -159,12 +159,13 @@ class InfoManager(object):
         print(to_print)
 
 
-mgr = InfoManager()
+mgr = None
 
 
 @click.group()
 def info():
-    ...
+    global mgr
+    mgr = InfoManager()
 
 
 @info.command()

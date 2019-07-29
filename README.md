@@ -1,5 +1,13 @@
 # TchoTcho
 
+```
+ (tchotcho)OOOOOoo...
+         _____      oo
+ _______ ||_||__n_n__I_
+ |__T__|-|_T_|_________)>
+  oo oo   o ()() ()() o\
+```
+
 ec2 train instance setup
 
 Find images:
@@ -24,7 +32,7 @@ Flow:
 
 AWS_PROFILE=private aws cloudformation validate-template --template-body file://temp.yaml
 AWS_PROFILE=private aws cloudformation create-stack --capabilities CAPABILITY_IAM --stack-name test-dl --template-body file://temp.yaml
-AWS_PROFILE=private aws cloudformation list-stacks 
+AWS_PROFILE=private aws cloudformation list-stacks
 AWS_PROFILE=private aws cloudformation describe-stacks --stack-name test-dl
 AWS_PROFILE=private aws cloudformation describe-stack-events --stack-name test-dl
 AWS_PROFILE=private aws cloudformation delete-stack --stack-name test-dl

@@ -113,7 +113,7 @@ def create_cloudformation(
                             """#!/bin/bash
                             set -x -e
                             apt-get update
-                            apt-get install neovim -y
+                            apt-get install neovim silversearcher-ag -y
 
                             # extra user data
                             {extra_user_data}

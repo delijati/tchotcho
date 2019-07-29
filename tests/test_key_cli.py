@@ -68,3 +68,11 @@ class TestCliKey(unittest.TestCase):
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
         self.assertEqual(out, "Succesfully deleted key test-key\n")
+
+    def test_fingerprint(self):
+        with pytest.raises(SystemExit) as ex:
+            cli(["key", "fingerprint", "--path", IMPORT_KEY, "--passphrase",
+                 "", "--csv"])
+        self.assertEqual(ex.value.code, 0)
+        out, err = self.capsys.readouterr()
+        self.assertTrue('{"public":{"0":"1a:5a:45:33:a1:f8:28:a7:f' in out)

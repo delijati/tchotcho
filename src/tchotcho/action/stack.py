@@ -104,7 +104,8 @@ def stack():
 @click.option("--subnet", help="Name of the subnet to use")
 @click.option("--price", type=float, help="Name of the instance to use")
 @click.option("--size", type=int, help="Size of the disk in GB", default=120)
-def create(name, ami, inst, security_group, subnet, price, size):
+@click.option("--dry/--no-dry", help="Only print yaml no create", default=False)
+def create(name, ami, inst, security_group, subnet, price, size, dry):
     # TODO
     # add keypair via boto if needed
     yaml = create_cloudformation(
@@ -117,8 +118,10 @@ def create(name, ami, inst, security_group, subnet, price, size):
         size,
         extra_user_data='echo "hello" > /tmp/hello.txt',
     )
-    print(yaml)
-    mgr.create(name, yaml)
+    if dry:
+        click.echo(yaml)
+    else:
+        mgr.create(name, yaml)
 
 
 @stack.command()
@@ -132,7 +135,8 @@ def delete(name):
 @click.option("--csv/--no-csv", default=False)
 def list(name, csv):
     ret = mgr.list()
-    if "Stacks" not in ret:
+    stacks = ret.get("Stacks")
+    if not stacks:
         click.echo("No stacks found!")
         return
 
