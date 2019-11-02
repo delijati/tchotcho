@@ -1,4 +1,5 @@
 import boto3
+import os
 import troposphere.iam
 import troposphere.ec2
 import troposphere
@@ -29,8 +30,10 @@ def create_cloudformation(
     extra_user_data="",
 ):
 
-    # TODO
-    t = troposphere.Template()
+    # XXX set this to get real bool values
+    os.environ["TROPO_REAL_BOOL"] = "true"
+
+    t = troposphere.Template(Description="TchoTcho EC2 train")
 
     instance_security_group = t.add_resource(
         troposphere.ec2.SecurityGroup(
@@ -39,10 +42,10 @@ def create_cloudformation(
             GroupDescription="Enable only SSH ingoing via port 22 and all outgoing",
             SecurityGroupIngress=[
                 troposphere.ec2.SecurityGroupRule(
-                    IpProtocol="tcp", FromPort="22", ToPort="22", CidrIp="0.0.0.0/0"
+                    IpProtocol="tcp", FromPort=22, ToPort=22, CidrIp="0.0.0.0/0"
                 ),
                 troposphere.ec2.SecurityGroupRule(
-                    IpProtocol="tcp", FromPort="22", ToPort="22", CidrIpv6="::/0"
+                    IpProtocol="tcp", FromPort=22, ToPort=22, CidrIpv6="::/0"
                 ),
             ],
             SecurityGroupEgress=[
@@ -108,20 +111,21 @@ def create_cloudformation(
                 ImageId=ami_id,
                 InstanceType=instance_type,
                 UserData=troposphere.Base64(
-                    troposphere.Sub(
-                        textwrap.dedent(
-                            """#!/bin/bash
-                            set -x -e
-                            apt-get update
-                            apt-get install neovim silversearcher-ag -y
+                    # Sub is only needed if we have variables
+                    # troposphere.Sub(
+                    textwrap.dedent(
+                        """#!/bin/bash
+                        set -x -e
+                        apt-get update
+                        apt-get install neovim silversearcher-ag -y
 
-                            # extra user data
-                            {extra_user_data}
-                            """.format(
-                                extra_user_data=extra_user_data
-                            )
-                        ),
-                    )
+                        # extra user data
+                        {extra_user_data}
+                        """.format(
+                            extra_user_data=extra_user_data
+                        )
+                    ),
+                    # )
                 ),
                 IamInstanceProfile=troposphere.ec2.IamInstanceProfile(
                     Arn=troposphere.GetAtt(instance_profile, "Arn"),
@@ -214,5 +218,7 @@ def create_cloudformation(
             ),
         ]
     )
-
-    return t.to_yaml()
+    # XXX moto has some problems with yaml; validate, LaunchTemplateData is
+    # not parsed so the ec2instance ImageId other keys are not found
+    # return t.to_yaml()
+    return t.to_json()

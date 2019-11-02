@@ -67,8 +67,10 @@ class SpotManager(object):
 
         results = list(itertools.chain.from_iterable(results))
 
-        ret = sorted(results, key=lambda x: float(x["SpotPrice"]))
-        print(f"Found {len(results)} entrie")
+        for x in results:
+            x["SpotPrice"] = float(x["SpotPrice"])
+        ret = sorted(results, key=lambda x: x["SpotPrice"])
+        print(f"Found {len(results)} entries")
         return ret
 
 
@@ -90,16 +92,12 @@ def _list(gpu, region, inst, csv):
     ret = mgr.list(gpu, region, inst)
 
     def set_color(val):
-        if val is not None:
-            val = float(val)
-            if val < 1:
-                val = colorama.Back.GREEN + str(val) + colorama.Back.RESET
-            elif val > 3:
-                val = colorama.Back.RED + str(val) + colorama.Back.RESET
-            else:
-                val = colorama.Back.YELLOW + str(val) + colorama.Back.RESET
+        if val < 1:
+            val = colorama.Back.GREEN + str(val) + colorama.Back.RESET
+        elif val > 3:
+            val = colorama.Back.RED + str(val) + colorama.Back.RESET
         else:
-            val = "Not avaidable"
+            val = colorama.Back.YELLOW + str(val) + colorama.Back.RESET
         return val
 
     # apply to specific column

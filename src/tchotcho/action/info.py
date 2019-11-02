@@ -46,7 +46,7 @@ class InfoManager(object):
         response = ec2.describe_regions()
         regions = [(x, ownerid, namefilter, limit) for x in response["Regions"]]
 
-        if method == "future-process":
+        if method == "futxure-process":
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 data = list(executor.map(self._get_ami_wrapper, regions))
         else:
@@ -191,10 +191,13 @@ def info():
     required=True,
     help="Number of AMI image",
 )
-def update(ownerid, namefilter, limit):
+@click.option("--csv/--no-csv", default=False)
+@click.option("--region", help="List in region", required=True,
+              default="eu-central-1")
+def update(ownerid, namefilter, limit, csv, region):
     """Update the GPU info json file"""
     ret = mgr.update(ownerid, namefilter, limit)
-    mgr.render(ret, "eu-central-1", False)
+    mgr.render(ret, region, csv)
 
 
 @info.command(name="list")

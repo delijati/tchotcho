@@ -34,6 +34,9 @@ class TestCliStack(unittest.TestCase):
                     "t2.medium",
                     "--price",
                     "0.02",
+                    "--ami",
+                    # XXX an image listed in moto
+                    "ami-1e749f67",
                     "--dry",
                 ]
             )

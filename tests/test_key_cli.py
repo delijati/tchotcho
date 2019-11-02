@@ -53,6 +53,13 @@ class TestCliKey(unittest.TestCase):
         out, err = self.capsys.readouterr()
         self.assertTrue('{"KeyName":{"0":"test-key"},"KeyFi' in out)
 
+        # color table
+        with pytest.raises(SystemExit) as ex:
+            cli(["key", "list", "--name", "test-key"])
+        self.assertEqual(ex.value.code, 0)
+        out, err = self.capsys.readouterr()
+        self.assertTrue('\x1b[42mtest-key\x1b[49m' in out)
+
     def test_import(self):
         with pytest.raises(SystemExit) as ex:
             cli(["key", "import", "--name", "test-key", "--path", IMPORT_KEY])

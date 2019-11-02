@@ -106,15 +106,13 @@ def stack():
 @click.option("--size", type=int, help="Size of the disk in GB", default=120)
 @click.option("--dry/--no-dry", help="Only print yaml no create", default=False)
 def create(name, ami, inst, security_group, subnet, price, size, dry):
-    # TODO
-    # add keypair via boto if needed
     yaml = create_cloudformation(
         name,
         ami,
         inst,
         security_group,
         subnet,
-        price,  # "0.2",
+        price,
         size,
         extra_user_data='echo "hello" > /tmp/hello.txt',
     )
