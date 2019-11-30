@@ -7,3 +7,5 @@ logma
 colorama
 tabulate
 pydantic
+pandas
+pycryptodome
