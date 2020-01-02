@@ -46,7 +46,7 @@ class InfoManager(object):
         response = ec2.describe_regions()
         regions = [(x, ownerid, namefilter, limit) for x in response["Regions"]]
 
-        if method == "futxure-process":
+        if method == "future-process":
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 data = list(executor.map(self._get_ami_wrapper, regions))
         else:
