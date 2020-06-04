@@ -34,8 +34,7 @@ class TestShellKey(unittest.TestCase):
         dst = self.tmp_dir / "dummy_repo"
         content = [p.name for p in dst.iterdir() if p.is_file()]
         self.assertEqual(
-            content, ["README.md", ".gitignore", "requirements.txt", "main.py"]
-        )
+            sorted(content), ['.gitignore', 'README.md', 'main.py', 'requirements.txt'])
 
     @mock.patch("subprocess.run")
     def test_ssh(self, patched_run):
