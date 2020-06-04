@@ -105,7 +105,11 @@ def shell():
 @click.option("--cmd", help="Command to execute via ssh e.g.: (pwd ; ls -l)", required=True)
 def ssh(privat_key, host, cmd):
     pmsg = mgr.ssh(privat_key, host, cmd)
-    click.echo(pmsg)
+    if pmsg.ok:
+        msg = pmsg.stdout
+    else:
+        msg = pmsg.stderr
+    click.echo(msg)
 
 
 @shell.command()
@@ -119,4 +123,8 @@ def ssh(privat_key, host, cmd):
 )
 def rsync(src, dst, dry, privat_key):
     pmsg = mgr.rsync(src, dst, dry, privat_key)
-    click.echo(pmsg)
+    if pmsg.ok:
+        msg = " ".join([x for x in pmsg.stdout.split("\n") if x][-2:])
+    else:
+        msg = pmsg.stderr
+    click.echo(msg)

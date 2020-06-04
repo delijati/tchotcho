@@ -44,4 +44,4 @@ class TestShellKey(unittest.TestCase):
                  "localhost", "--cmd", "pwd ; date"])
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue("/home/foo\\nThu Jun  4 14:02:40 CEST 2020" in out)
+        self.assertTrue("/home/foo\nThu Jun  4 14:02:40 CEST 2020" in out)
