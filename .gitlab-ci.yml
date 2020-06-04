@@ -19,7 +19,7 @@ test:
     - linting
   before_script:
     - apt-get update && apt-get install -y
-      build-essential
+      build-essential openssh-client rsync
   script:
     - pip install -e ".[tests]"
     - pytest tests -s --cov src --cov-report term
