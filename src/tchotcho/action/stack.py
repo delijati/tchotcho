@@ -97,8 +97,13 @@ def stack():
 
 @stack.command()
 @click.option("--name", required=True, help="Name of stack to create && key")
-@click.option("--ami", required=True, help="Name of ami to use",
-              default="ami-061aaaac62de85935", show_default=True)
+@click.option(
+    "--ami",
+    required=True,
+    help="Name of ami to use",
+    default="ami-061aaaac62de85935",
+    show_default=True,
+)
 @click.option("--inst", required=True, help="Name of the instance to use")
 @click.option("--security_group", help="Name of the security group to use")
 @click.option("--subnet", help="Name of the subnet to use")

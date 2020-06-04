@@ -251,6 +251,17 @@ Example:
 ❯ AWS_PROFILE=dev tchotcho stack create --name test-dl --inst t2.medium --price 0.02 --dry
 ```
 
+## Code style
+
+We use `flake8` to ensure code quality and `black` to autoformat code.
+
+Add it as a git-hook:
+
+```
+$ flake8 --install-hook git
+$ git config --bool flake8.strict true
+```
+
 ## TODO
 
 - Try paramiko + scp to be pure python

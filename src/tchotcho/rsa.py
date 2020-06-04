@@ -4,7 +4,6 @@ from Crypto.PublicKey import RSA
 
 
 class RSAFingerprintManager(object):
-
     def to_string(self, string):
         return ":".join(a + b for a, b in zip(string[::2], string[1::2]))
 

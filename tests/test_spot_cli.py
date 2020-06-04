@@ -41,7 +41,7 @@ class TestCliSpot(unittest.TestCase):
                 "InstanceType": "f3s.xlarge",
                 "ProductDescription": "Linux/UNIX",
                 "SpotPrice": "4.281400",
-            }
+            },
         ]
 
         with pytest.raises(SystemExit) as ex:
@@ -58,20 +58,13 @@ class TestCliSpot(unittest.TestCase):
             )
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue('0,g3s.xlarge,eu-central-1b,0.2814' in out)
+        self.assertTrue("0,g3s.xlarge,eu-central-1b,0.2814" in out)
 
         # color table
         with pytest.raises(SystemExit) as ex:
             cli(
-                [
-                    "spot",
-                    "list",
-                    "--inst",
-                    "g3s.xlarge",
-                    "--region",
-                    "eu-central-1",
-                ]
+                ["spot", "list", "--inst", "g3s.xlarge", "--region", "eu-central-1"]
             )
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue('\x1b[42m0.2814\x1b[49m' in out)
+        self.assertTrue("\x1b[42m0.2814\x1b[49m" in out)

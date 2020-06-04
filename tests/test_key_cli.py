@@ -15,13 +15,13 @@ IMPORT_KEY = pathlib.Path(__file__).absolute().parent / "dummy.pub"
 
 @mock_ec2
 class TestCliKey(unittest.TestCase):
-
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
         self.capsys = capsys
 
     def setUp(self):
         import requests
+
         # reset moto or we have to many keys
         requests.post("http://motoapi.amazonaws.com/moto-api/reset")
         settings = Settings()
@@ -58,7 +58,7 @@ class TestCliKey(unittest.TestCase):
             cli(["key", "list", "--name", "test-key"])
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue('\x1b[42mtest-key\x1b[49m' in out)
+        self.assertTrue("\x1b[42mtest-key\x1b[49m" in out)
 
     def test_import(self):
         with pytest.raises(SystemExit) as ex:
@@ -78,8 +78,17 @@ class TestCliKey(unittest.TestCase):
 
     def test_fingerprint(self):
         with pytest.raises(SystemExit) as ex:
-            cli(["key", "fingerprint", "--path", IMPORT_KEY, "--passphrase",
-                 "", "--csv"])
+            cli(
+                [
+                    "key",
+                    "fingerprint",
+                    "--path",
+                    IMPORT_KEY,
+                    "--passphrase",
+                    "",
+                    "--csv",
+                ]
+            )
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
         self.assertTrue('{"public":{"0":"1a:5a:45:33:a1:f8:28:a7:f' in out)

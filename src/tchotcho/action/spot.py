@@ -41,8 +41,7 @@ class SpotManager(object):
             with open(self.settings.GPU_INFO_FILE) as f:
                 inst = json.load(f)["instance"]
                 if gpu:
-                    inst = [x["name"] for x in inst if x["gpu"] > 0 and
-                            x["supported"]]
+                    inst = [x["name"] for x in inst if x["gpu"] > 0 and x["supported"]]
                 else:
                     inst = [x["name"] for x in inst]
 
@@ -84,8 +83,9 @@ def spot():
 
 @spot.command(name="list")
 @click.option("--region", help="List spot prices in region")
-@click.option("--gpu/--no-gpu", default=True,
-              help="Limit results to show only GPU instances")
+@click.option(
+    "--gpu/--no-gpu", default=True, help="Limit results to show only GPU instances"
+)
 @click.option("--inst", help="List spot prices for instance type", multiple=True)
 @click.option("--csv/--no-csv", default=False)
 def _list(gpu, region, inst, csv):

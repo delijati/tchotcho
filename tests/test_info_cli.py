@@ -33,7 +33,6 @@ def mocked_requests_get(*args, **kwargs):
 
 @mock_ec2
 class TestInfoKey(unittest.TestCase):
-
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
         self.capsys = capsys
@@ -47,7 +46,7 @@ class TestInfoKey(unittest.TestCase):
         settings.GPU_INFO_FILE = GPU_INFO_FILE
         set_settings(settings)
 
-    @unittest.mock.patch('requests.get', side_effect=mocked_requests_get)
+    @unittest.mock.patch("requests.get", side_effect=mocked_requests_get)
     def test_create(self, mock_get):
         with tempfile.NamedTemporaryFile() as tmp_gpu_info:
             settings = Settings()
@@ -55,23 +54,34 @@ class TestInfoKey(unittest.TestCase):
             set_settings(settings)
 
             with pytest.raises(SystemExit) as ex:
-                cli(["info", "update", "--csv", "--region", "us-east-2",
-                     "--namefilter", "ubuntu*", "--ownerid", "099720109477"])
+                cli(
+                    [
+                        "info",
+                        "update",
+                        "--csv",
+                        "--region",
+                        "us-east-2",
+                        "--namefilter",
+                        "ubuntu*",
+                        "--ownerid",
+                        "099720109477",
+                    ]
+                )
             self.assertTrue(mock_get.called)
             self.assertEqual(ex.value.code, 0)
             out, err = self.capsys.readouterr()
-            self.assertTrue('g2.8xlarge,4,32,NVIDIA GRID K520' in out)
+            self.assertTrue("g2.8xlarge,4,32,NVIDIA GRID K520" in out)
 
     def test_list(self):
         with pytest.raises(SystemExit) as ex:
             cli(["info", "list", "--region", "eu-central-1", "--csv"])
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue('g2.8xlarge,4,32,NVIDIA GRID K520' in out)
+        self.assertTrue("g2.8xlarge,4,32,NVIDIA GRID K520" in out)
 
         # color table
         with pytest.raises(SystemExit) as ex:
             cli(["info", "list", "--region", "eu-central-1"])
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue('\x1b[43m2.85\x1b[49m' in out)
+        self.assertTrue("\x1b[43m2.85\x1b[49m" in out)

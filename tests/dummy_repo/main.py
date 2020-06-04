@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import Model, layers
+from tensorflow.keras.datasets import mnist
 import numpy as np
 
 # MNIST dataset parameters.
@@ -17,7 +18,6 @@ conv2_filters = 64  # number of filters for 2nd conv layer.
 fc1_units = 1024  # number of neurons for 1st fully-connected layer.
 
 # Prepare MNIST data.
-from tensorflow.keras.datasets import mnist
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 # Convert to float32.
@@ -28,6 +28,7 @@ x_train, x_test = x_train / 255.0, x_test / 255.0
 # Use tf.data API to shuffle and batch data.
 train_data = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 train_data = train_data.repeat().shuffle(5000).batch(batch_size).prefetch(1)
+
 
 # Create TF Model.
 class ConvNet(Model):
@@ -75,6 +76,7 @@ class ConvNet(Model):
 
 # Build neural network model.
 conv_net = ConvNet()
+
 
 # Cross-Entropy Loss.
 # Note that this will apply 'softmax' to the logits.

@@ -29,12 +29,10 @@ class ShellManager(object):
             self.to_string(proc.stdout),
             self.to_string(proc.stderr),
             proc.returncode == 0,
-            proc.returncode)
+            proc.returncode,
+        )
         if not pmsg.ok:
-            log.error(
-                "%s returncode: %s stderr: %s"
-                % (cmd[0], pmsg.code, pmsg.stderr)
-            )
+            log.error("%s returncode: %s stderr: %s" % (cmd[0], pmsg.code, pmsg.stderr))
         else:
             log.info(f"{cmd[0]} ok: {pmsg.ok} returncode: {pmsg.code}")
         return pmsg
@@ -46,7 +44,7 @@ class ShellManager(object):
         if not any([char in dst for char in (":", "@")]):
             dst = str(pathlib.Path(dst).resolve())
         option = "-avzm"
-        option += ("n" if dry else "")
+        option += "n" if dry else ""
         cmd = [
             "rsync",
             option,
@@ -102,7 +100,9 @@ def shell():
     type=click.Path(exists=True, resolve_path=True),
 )
 @click.option("--host", help="Host url e.g.: (user@server)", required=True)
-@click.option("--cmd", help="Command to execute via ssh e.g.: (pwd ; ls -l)", required=True)
+@click.option(
+    "--cmd", help="Command to execute via ssh e.g.: (pwd ; ls -l)", required=True
+)
 def ssh(privat_key, host, cmd):
     pmsg = mgr.ssh(privat_key, host, cmd)
     if pmsg.ok:
@@ -114,7 +114,9 @@ def ssh(privat_key, host, cmd):
 
 @shell.command()
 @click.option("--src", help="Source path", required=True)
-@click.option("--dst", help="Destination path e.g.: (/home/... or user@server)", required=True)
+@click.option(
+    "--dst", help="Destination path e.g.: (/home/... or user@server)", required=True
+)
 @click.option("--dry/--no-dry", help="Only print yaml no create", default=False)
 @click.option(
     "--privat-key",

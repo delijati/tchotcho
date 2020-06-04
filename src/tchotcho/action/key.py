@@ -80,8 +80,7 @@ class KeyManager:
         rsamgr = RSAFingerprintManager()
         ret = {
             "public": [rsamgr.get_public(path, passphrase)],
-            "private": [rsamgr.get_private(path, passphrase)]
-
+            "private": [rsamgr.get_private(path, passphrase)],
         }
         return ret
 
@@ -156,7 +155,7 @@ def _import(name, path):
     required=True,
     type=click.Path(exists=True, resolve_path=True),
 )
-@click.option('--passphrase', prompt=True, hide_input=True, default="")
+@click.option("--passphrase", prompt=True, hide_input=True, default="")
 @click.option("--csv/--no-csv", default=False)
 def fingerprint(path, passphrase, csv):
     ret = mgr.fingerprint(path, passphrase)

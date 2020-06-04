@@ -138,9 +138,19 @@ class InfoManager(object):
             return val
 
         # apply to specific column
-        df = df[["name", "gpu", "gpu_memory", "gpu_model", "cpu", "memory",
-                 "supported", "price"]]
-        df = df.sort_values(by=['gpu'], ascending=False)
+        df = df[
+            [
+                "name",
+                "gpu",
+                "gpu_memory",
+                "gpu_model",
+                "cpu",
+                "memory",
+                "supported",
+                "price",
+            ]
+        ]
+        df = df.sort_values(by=["gpu"], ascending=False)
         to_print = df.to_csv()
         if not csv:
             df["price"] = df["price"].apply(set_color)
@@ -192,8 +202,7 @@ def info():
     help="Number of AMI image",
 )
 @click.option("--csv/--no-csv", default=False)
-@click.option("--region", help="List in region", required=True,
-              default="eu-central-1")
+@click.option("--region", help="List in region", required=True, default="eu-central-1")
 def update(ownerid, namefilter, limit, csv, region):
     """Update the GPU info json file"""
     ret = mgr.update(ownerid, namefilter, limit)
