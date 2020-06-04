@@ -30,7 +30,7 @@ class TestShellKey(unittest.TestCase):
             )
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue("total size is 4,780" in out)
+        self.assertTrue("total size is 4" in out, out)
         dst = self.tmp_dir / "dummy_repo"
         content = [p.name for p in dst.iterdir() if p.is_file()]
         self.assertEqual(
