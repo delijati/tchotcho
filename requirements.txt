@@ -9,3 +9,4 @@ tabulate
 pydantic
 pandas
 pycryptodome
+attrs

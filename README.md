@@ -1,3 +1,6 @@
+[![pipeline status](https://gitlab.com/delijati/tchotcho/badges/master/pipeline.svg)](https://gitlab.com/delijati/tchotcho/commits/master)
+[![coverage report](https://gitlab.com/delijati/tchotcho/badges/master/coverage.svg)](https://gitlab.com/delijati/tchotcho/commits/master)
+
 # TchoTcho
 
 ```
@@ -36,3 +39,15 @@ AWS_PROFILE=private aws cloudformation list-stacks
 AWS_PROFILE=private aws cloudformation describe-stacks --stack-name test-dl
 AWS_PROFILE=private aws cloudformation describe-stack-events --stack-name test-dl
 AWS_PROFILE=private aws cloudformation delete-stack --stack-name test-dl
+sudo apt install s3fs
+env/bin/pip install awscli
+
+
+# rsync only repo files:
+https://stackoverflow.com/questions/13713101/rsync-exclude-according-to-gitignore-hgignore-svnignore-like-filter-c
+reset && rsync -ahvzn --delete --exclude .git --exclude-from=.git/ignores.tmp . ../foo 
+rsync -anzP --delete --exclude .git --filter=":- .gitignore" . ../foo
+
+## TODO
+
+- Try paramiko + scp to be pure python
