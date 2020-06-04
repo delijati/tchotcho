@@ -3,6 +3,7 @@ image: python:3.7.6-slim
 stages:
   - lint
   - test
+  - deploy
 
 before_script:
   - pip install --upgrade pip flake8
@@ -23,3 +24,16 @@ test:
     - pip install -e ".[tests]"
     - pytest tests -s --cov src --cov-report term
   coverage: '/TOTAL.*\s(\d+)%/'
+
+deploy:
+  stage: deploy
+  dependencies:
+    - test
+  script:
+    - pip install -U setuptools wheel twine
+    - python setup.py bdist_wheel sdist bdist_egg
+    # XXX TWINE_PASSWORD and TWINE_USERNAME needs to be set
+    - twine upload dist/*
+  # when: manual
+  only:
+    - tags
