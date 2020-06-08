@@ -59,10 +59,34 @@ class StackManager(object):
             log.error(f"Stack {name} does not exist.")
 
     @boto_exception
-    def create(self, name, template):
+    def create(
+        self,
+        name,
+        ami,
+        inst,
+        security_group,
+        subnet,
+        price,
+        size,
+        dry,
+        extra_user_data='echo "hello" > /tmp/hello.txt',
+    ):
         "Create stack"
 
+        template = create_cloudformation(
+            name,
+            ami,
+            inst,
+            security_group,
+            subnet,
+            price,
+            size,
+            extra_user_data,
+        )
+
         template_data = self._parse_template(template)
+        if dry:
+            return template_data
 
         params = {
             "StackName": name,
@@ -101,7 +125,7 @@ def stack():
     "--ami",
     required=True,
     help="Name of ami to use",
-    default="ami-061aaaac62de85935",
+    default="ami-062a3145bcf312c71",
     show_default=True,
 )
 @click.option("--inst", required=True, help="Name of the instance to use")
@@ -111,20 +135,8 @@ def stack():
 @click.option("--size", type=int, help="Size of the disk in GB", default=120)
 @click.option("--dry/--no-dry", help="Only print yaml no create", default=False)
 def create(name, ami, inst, security_group, subnet, price, size, dry):
-    yaml = create_cloudformation(
-        name,
-        ami,
-        inst,
-        security_group,
-        subnet,
-        price,
-        size,
-        extra_user_data='echo "hello" > /tmp/hello.txt',
-    )
-    if dry:
-        click.echo(yaml)
-    else:
-        mgr.create(name, yaml)
+    ret = mgr.create(name, ami, inst, security_group, subnet, price, size, dry)
+    click.echo(ret)
 
 
 @stack.command()

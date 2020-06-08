@@ -36,14 +36,18 @@ class TestShellKey(unittest.TestCase):
         self.assertEqual(
             sorted(content), ['.gitignore', 'README.md', 'main.py', 'requirements.txt'])
 
-    @mock.patch("subprocess.run")
-    def test_ssh(self, patched_run):
-        patched_run.return_value = mock.Mock(
-            args=[],
-            stderr=b"",
-            returncode=0,
-            stdout=b"/home/foo\nThu Jun  4 14:02:40 CEST 2020\n",
-        )
+    @mock.patch("subprocess.Popen")
+    def test_ssh(self, patched_popen):
+        process_mock = mock.Mock()
+        attrs = {
+            'communicate.return_value': (
+                "/home/foo\nThu Jun  4 14:02:40 CEST 2020\n",
+                ""),
+            'poll.return_value': 0
+        }
+        process_mock.configure_mock(**attrs)
+        patched_popen.return_value = process_mock
+
         with pytest.raises(SystemExit) as ex:
             cli(
                 [

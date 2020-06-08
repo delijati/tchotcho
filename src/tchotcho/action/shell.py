@@ -1,5 +1,6 @@
 import subprocess
 from tchotcho.log import log
+from typing import Optional
 import pathlib
 import attr
 import click
@@ -7,30 +8,43 @@ import click
 
 @attr.s(auto_attribs=True)
 class ProcMsg:
-    cmd: str
-    stdout: str
-    stderr: str
-    ok: bool
-    code: int
+    cmd: str = attr.ib()
+    stdout: str = attr.ib()
+    stderr: str = attr.ib()
+    ok: bool = attr.ib()
+    code: Optional[int] = attr.ib()
 
 
 class ShellManager(object):
-    def to_string(self, std):
-        return std.decode("utf-8").strip()
-
-    def run_cmd(self, cmd):
+    def run_cmd(self, cmd, _iter=False):
         log.info("Executing cmd: %s" % " ".join(cmd))
-        proc = subprocess.run(
-            cmd, shell=False, stderr=subprocess.PIPE, stdout=subprocess.PIPE
-        )
-        log.debug(proc.args)
-        pmsg = ProcMsg(
+
+        proc = subprocess.Popen(
             cmd,
-            self.to_string(proc.stdout),
-            self.to_string(proc.stderr),
-            proc.returncode == 0,
-            proc.returncode,
+            shell=False,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
         )
+        if not _iter:
+            try:
+                stdout, stderr = proc.communicate()
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                stdout, stderr = proc.communicate()
+            except Exception:
+                proc.kill()
+                proc.wait()
+        else:
+            stdout = proc.stdout
+            stderr = proc.stderr
+
+        returncode = proc.poll()
+
+        log.debug(proc.args)
+
+        pmsg = ProcMsg(cmd, stdout, stderr, returncode == 0, returncode,)
+
         if not pmsg.ok:
             log.error("%s returncode: %s stderr: %s" % (cmd[0], pmsg.code, pmsg.stderr))
         else:
@@ -66,7 +80,7 @@ class ShellManager(object):
             log.info(f"rsync summary: {summary}")
         return pmsg
 
-    def ssh(self, privat_key, host, command):
+    def ssh(self, privat_key, host, command, _iter):
         cmd = [
             "ssh",
             "-i",
@@ -78,7 +92,7 @@ class ShellManager(object):
             host,
             command,
         ]
-        pmsg = self.run_cmd(cmd)
+        pmsg = self.run_cmd(cmd, _iter=_iter)
         if pmsg.ok:
             log.info(f"ssh stdout: {pmsg.stdout}")
         return pmsg
@@ -103,13 +117,18 @@ def shell():
 @click.option(
     "--cmd", help="Command to execute via ssh e.g.: (pwd ; ls -l)", required=True
 )
-def ssh(privat_key, host, cmd):
-    pmsg = mgr.ssh(privat_key, host, cmd)
-    if pmsg.ok:
-        msg = pmsg.stdout
+@click.option("--it/--no-it", default=False)
+def ssh(privat_key, host, cmd, it):
+    pmsg = mgr.ssh(privat_key, host, cmd, it)
+    if it:
+        for line in pmsg.stdout:
+            click.echo(line)
     else:
-        msg = pmsg.stderr
-    click.echo(msg)
+        if pmsg.ok:
+            msg = pmsg.stdout
+        else:
+            msg = pmsg.stderr
+        click.echo(msg)
 
 
 @shell.command()
