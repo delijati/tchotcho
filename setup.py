@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tchotcho",
-    version="0.2.2",
+    version="0.3.0",
     author="Josip Delic",
     description="tchotcho",
     long_description=long_description,
