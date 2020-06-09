@@ -72,7 +72,7 @@ class ShellManager(object):
             "--filter=:- .gitignore",
         ]
         if privat_key:
-            cmd.extend(["-e", f"ssh -o StrictHostKeyChecking=no -i {privat_key}"])
+            cmd.extend(["-e", f"ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -i {privat_key}"])
         cmd.extend([src, dst])
         pmsg = self.run_cmd(cmd)
         if pmsg.ok:
@@ -91,6 +91,8 @@ class ShellManager(object):
             "ServerAliveCountMax=2",
             "-o",
             "StrictHostKeyChecking=no",
+            "-o",
+            "IdentitiesOnly=yes",
             host,
             command,
         ]
