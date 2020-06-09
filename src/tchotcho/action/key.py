@@ -1,3 +1,5 @@
+import os
+
 import boto3
 import click
 import colorama
@@ -6,8 +8,8 @@ import pandas as pd
 import tabulate
 
 from tchotcho.log import log
-from tchotcho.config import get_settings
 from tchotcho.rsa import RSAFingerprintManager
+from tchotcho.config import get_settings
 
 colorama.init()
 
@@ -47,15 +49,28 @@ class KeyManager:
 
         log.info(f"Creating key {name}...")
         resp = self.ec2.create_key_pair(KeyName=name)
-        key = resp["KeyMaterial"]
+        priv_key = resp["KeyMaterial"]
 
-        KEY_FILE = self.settings.PROG_HOME / name
+        pub_name = "%s.pub" % name
+        PRIVATE_KEY_FILE = self.settings.PROG_HOME / name
+        PUBLIC_KEY_FILE = self.settings.PROG_HOME / pub_name
 
         if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
-            with open(KEY_FILE, "w") as f:
-                f.write(key)
-            log.info(f"Succesfully created key {name} in {KEY_FILE}")
-            ret = KEY_FILE
+            with open(PRIVATE_KEY_FILE, "w") as f:
+                f.write(priv_key)
+            os.chmod(PRIVATE_KEY_FILE, 0o400)
+            log.info(f"Succesfully created private key {name} in {PRIVATE_KEY_FILE}")
+
+            rsamgr = RSAFingerprintManager()
+            pub_key = rsamgr.extract_private_to_public(PRIVATE_KEY_FILE)
+
+            with open(PUBLIC_KEY_FILE, "w") as f:
+                f.write(pub_key)
+            os.chmod(PUBLIC_KEY_FILE, 0o400)
+            log.info(f"Succesfully created public key {pub_name} in {PUBLIC_KEY_FILE}")
+
+            ret = (PRIVATE_KEY_FILE, PUBLIC_KEY_FILE)
+
         return ret
 
     def delete(self, name, ask):
@@ -67,12 +82,16 @@ class KeyManager:
         log.info(f"Deleting key {name}...")
         resp = self.ec2.delete_key_pair(KeyName=name)
         if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
-            KEY_FILE = self.settings.PROG_HOME / name
-            if KEY_FILE.exists():
-                cond = input(f"Delete {KEY_FILE} locally? (yes/no)") if ask else "yes"
-                if cond.strip().lower() == "yes":
-                    KEY_FILE.unlink()
-            log.info(f"Succesfully deleted key {name}!")
+
+            pub_name = "%s.pub" % name
+            PRIVATE_KEY_FILE = self.settings.PROG_HOME / name
+            PUBLIC_KEY_FILE = self.settings.PROG_HOME / pub_name
+            for KEY_FILE in (PRIVATE_KEY_FILE, PUBLIC_KEY_FILE):
+                if KEY_FILE.exists():
+                    cond = input(f"Delete {KEY_FILE} locally? (yes/no): ") if ask else "yes"
+                    if cond.strip().lower() == "yes":
+                        KEY_FILE.unlink()
+                log.info(f"Succesfully deleted key {name}!")
             ret = True
         return ret
 

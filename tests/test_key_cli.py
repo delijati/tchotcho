@@ -43,6 +43,10 @@ class TestCliKey(unittest.TestCase):
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
         self.assertEqual(out, "Succesfully created key test-key\n")
+        self.assertEqual(
+            sorted([x.name for x in self.tmp_dir.iterdir()]),
+            ["test-key", "test-key.pub"],
+        )
 
     def test_list(self):
         self._create("test-key")

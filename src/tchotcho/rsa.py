@@ -24,3 +24,9 @@ class RSAFingerprintManager(object):
         md5digest = hashlib.md5(pubkey.exportKey("DER")).hexdigest()
         fingerprint = self.to_string(md5digest)
         return fingerprint
+
+    def extract_private_to_public(self, key_location, passphrase=None):
+        # ssh-keygen -f ~/.ssh/test-dl.pem -y > ~/.ssh/test-dl.pem.pub
+        privkey = self.get_rsa_key(key_location, passphrase)
+        public_key = privkey.publickey().exportKey('PEM')
+        return public_key.decode("ascii")
