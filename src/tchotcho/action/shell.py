@@ -43,7 +43,7 @@ class ShellManager(object):
 
         log.debug(proc.args)
 
-        pmsg = ProcMsg(cmd, stdout, stderr, returncode == 0, returncode,)
+        pmsg = ProcMsg(cmd, stdout, stderr, returncode == 0, returncode)
 
         if not pmsg.ok:
             log.error("%s returncode: %s stderr: %s" % (cmd[0], pmsg.code, pmsg.stderr))

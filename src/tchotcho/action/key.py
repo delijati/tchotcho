@@ -40,10 +40,10 @@ class KeyManager:
         return name in [x["KeyName"] for x in self.list()]
 
     def create(self, name):
-        ret = False
+        ret = None
         if self.exists(name):
             log.error(f"Key {name} already exists!")
-            return ret
+            return None
 
         log.info(f"Creating key {name}...")
         resp = self.ec2.create_key_pair(KeyName=name)
@@ -55,7 +55,7 @@ class KeyManager:
             with open(KEY_FILE, "w") as f:
                 f.write(key)
             log.info(f"Succesfully created key {name} in {KEY_FILE}")
-            ret = True
+            ret = KEY_FILE
         return ret
 
     def delete(self, name, ask):

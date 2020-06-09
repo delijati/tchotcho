@@ -116,8 +116,14 @@ def create_cloudformation(
                     textwrap.dedent(
                         """#!/bin/bash
                         set -x -e
-                        apt-get update
-                        apt-get install neovim silversearcher-ag -y
+
+                        # remove ubuntu daily updates
+                        # https://unix.stackexchange.com/a/480986
+                        systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
+                        systemctl mask apt-daily.service apt-daily-upgrade.service
+
+                        apt update
+                        apt install neovim silversearcher-ag -y
 
                         # extra user data
                         {extra_user_data}

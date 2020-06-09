@@ -11,23 +11,10 @@ import tabulate
 colorama.init()
 
 
-def waiter_callback(response):
-    log.info(response)
-    if "Stacks" in response:
-        log.info(response["Stacks"])
-        if "Outputs" in response["Stacks"][0]:
-            df = pd.DataFrame(response["Stacks"][0]["Outputs"])
-            to_print = tabulate.tabulate(
-                df, headers="keys", tablefmt="fancy_grid", showindex="never"
-            )
-            print(to_print)
-    else:
-        log.info(response)
-
-
 class StackManager(object):
     def __init__(self):
         self.cf = boto3.client("cloudformation")
+        self.output = None
 
     def _parse_template(self, template_data):
         self.cf.validate_template(TemplateBody=template_data)
@@ -42,6 +29,21 @@ class StackManager(object):
                 return True
         return False
 
+    def _waiter_callback(self, response):
+        log.info(response)
+        if "Stacks" in response:
+            log.info(response["Stacks"])
+            if "Outputs" in response["Stacks"][0]:
+                out = response["Stacks"][0]["Outputs"]
+                df = pd.DataFrame(out)
+                self.output = {x["OutputKey"].lower(): x["OutputValue"] for x in out}
+                to_print = tabulate.tabulate(
+                    df, headers="keys", tablefmt="fancy_grid", showindex="never"
+                )
+                print(to_print)
+        else:
+            log.info(response)
+
     @boto_exception
     def delete(self, name):
         """Delete a stack if it exists by name """
@@ -51,7 +53,7 @@ class StackManager(object):
             log.info(f"Deleting stack: {name}...")
             self.cf.delete_stack(StackName=name)
             waiter = get_wrapped_waiter(
-                self.cf, "stack_delete_complete", waiter_callback
+                self.cf, "stack_delete_complete", self._waiter_callback
             )
             waiter.wait(StackName=name)
             log.info(f"Stack {name} deleted")
@@ -100,10 +102,11 @@ class StackManager(object):
             print(f"Creating stack: {name}...")
             self.cf.create_stack(**params)
             waiter = get_wrapped_waiter(
-                self.cf, "stack_create_complete", waiter_callback
+                self.cf, "stack_create_complete", self._waiter_callback
             )
             waiter.wait(StackName=name)
             log.info(f"Stack {name} created")
+            return self.output
 
     @boto_exception
     def list(self):
@@ -136,6 +139,7 @@ def stack():
 @click.option("--dry/--no-dry", help="Only print yaml no create", default=False)
 def create(name, ami, inst, security_group, subnet, price, size, dry):
     ret = mgr.create(name, ami, inst, security_group, subnet, price, size, dry)
+    ret = click.echo(ret)
     click.echo(ret)
 
 
