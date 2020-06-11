@@ -4,10 +4,47 @@ import troposphere.iam
 import troposphere.ec2
 import troposphere
 import troposphere.cloudformation
+import troposphere.policies
 import textwrap
 import awacs.aws
 import awacs.sts
 import awacs
+
+
+USER_SCRIPT_DEFAULT = """#!/bin/bash
+set -x -e
+# See logs:
+# /var/log/cloud-init.log and
+# /var/log/cloud-init-output.log
+# /var/log/user-data.log
+
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+echo "BEGIN"
+date '+%Y-%m-%d %H:%M:%S'
+
+# remove ubuntu daily updates
+# https://unix.stackexchange.com/a/480986
+flock /var/lib/apt/daily_lock apt update
+flock /var/lib/apt/daily_lock apt install neovim silversearcher-ag python-pip -y
+
+# install tool to signal that we are ready
+pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+
+echo "START # Extra user data #"
+
+<<extra_user_data>>
+
+echo "END # Extra user data #"
+
+# Setup the ec2 train !!! only needed if we have metadata
+# cfn-init -v --stack ${AWS::StackName} --resource TchoTchoInstance --region ${AWS::Region}
+
+# Signal the status of cfn-init
+cfn-signal -e $? --stack ${AWS::StackName} --resource TchoTchoInstance --region ${AWS::Region}
+
+echo "END"
+"""
 
 
 def get_default_vpc_id():
@@ -27,9 +64,11 @@ def create_cloudformation(
     subnet_id=None,
     price=None,
     size=100,
+    user_script=USER_SCRIPT_DEFAULT,
     extra_user_data="",
 ):
-
+    user_script = USER_SCRIPT_DEFAULT.replace("<<extra_user_data>>",
+                                              extra_user_data)
     # XXX set this to get real bool values
     os.environ["TROPO_REAL_BOOL"] = "true"
 
@@ -111,27 +150,12 @@ def create_cloudformation(
                 ImageId=ami_id,
                 InstanceType=instance_type,
                 UserData=troposphere.Base64(
-                    # Sub is only needed if we have variables
-                    # troposphere.Sub(
-                    textwrap.dedent(
-                        """#!/bin/bash
-                        set -x -e
-
-                        # remove ubuntu daily updates
-                        # https://unix.stackexchange.com/a/480986
-                        systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
-                        systemctl mask apt-daily.service apt-daily-upgrade.service
-
-                        apt update
-                        apt install neovim silversearcher-ag -y
-
-                        # extra user data
-                        {extra_user_data}
-                        """.format(
-                            extra_user_data=extra_user_data
-                        )
+                    # Sub is needed if we have variables
+                    troposphere.Sub(
+                        textwrap.dedent(
+                            user_script.strip()
+                        ),
                     ),
-                    # )
                 ),
                 IamInstanceProfile=troposphere.ec2.IamInstanceProfile(
                     Arn=troposphere.GetAtt(instance_profile, "Arn"),
@@ -182,10 +206,13 @@ def create_cloudformation(
 
     ec2_instance = t.add_resource(
         troposphere.ec2.Instance(
-            "Instance",
+            "TchoTchoInstance",
             LaunchTemplate=troposphere.ec2.LaunchTemplateSpecification(
                 LaunchTemplateId=troposphere.Ref(launch_template),
                 Version=troposphere.GetAtt(launch_template, "LatestVersionNumber"),
+            ),
+            CreationPolicy=troposphere.policies.CreationPolicy(
+                ResourceSignal=troposphere.policies.ResourceSignal(Timeout='PT15M')
             ),
         )
     )

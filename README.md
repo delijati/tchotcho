@@ -251,6 +251,13 @@ Example:
 ❯ AWS_PROFILE=dev tchotcho stack create --name test-dl --inst t2.medium --price 0.02 --dry
 ```
 
+### User script
+
+TODO Currently only via the api changeable. Explain:
+
+- waiting for apt via flock
+- signal to cloudformation so we wait until user script install is finished
+
 ## Code style
 
 We use `flake8` to ensure code quality and `black` to autoformat code.

@@ -83,7 +83,7 @@ class StackManager(object):
             subnet,
             price,
             size,
-            extra_user_data,
+            extra_user_data=extra_user_data,
         )
 
         template_data = self._parse_template(template)
