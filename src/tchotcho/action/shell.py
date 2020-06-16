@@ -11,7 +11,7 @@ class ProcMsg:
     cmd: str = attr.ib()
     stdout: str = attr.ib()
     stderr: str = attr.ib()
-    ok: bool = attr.ib()
+    ok: Optional[bool] = attr.ib()
     code: Optional[int] = attr.ib()
 
 
@@ -40,12 +40,15 @@ class ShellManager(object):
             stderr = proc.stderr
 
         returncode = proc.poll()
+        ok = None
+        if returncode is not None:
+            ok = returncode == 0
 
         log.debug(proc.args)
 
-        pmsg = ProcMsg(cmd, stdout, stderr, returncode == 0, returncode)
+        pmsg = ProcMsg(cmd, stdout, stderr, ok, returncode)
 
-        if not pmsg.ok:
+        if pmsg.ok is not None and not pmsg.ok:
             log.error("%s returncode: %s stderr: %s" % (cmd[0], pmsg.code, pmsg.stderr))
         else:
             log.info(f"{cmd[0]} ok: {pmsg.ok} returncode: {pmsg.code}")
@@ -126,6 +129,8 @@ def ssh(privat_key, host, cmd, it):
     pmsg = mgr.ssh(privat_key, host, cmd, it)
     if it:
         for line in pmsg.stdout:
+            click.echo(line)
+        for line in pmsg.stderr:
             click.echo(line)
     else:
         if pmsg.ok:
