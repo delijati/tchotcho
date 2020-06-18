@@ -70,14 +70,14 @@ class TestInfoKey(unittest.TestCase):
             self.assertTrue(mock_get.called)
             self.assertEqual(ex.value.code, 0)
             out, err = self.capsys.readouterr()
-            self.assertTrue("g2.8xlarge,4,32,NVIDIA GRID K520" in out)
+            self.assertTrue("p2.8xlarge,8,,96,NVIDIA Tesla K80,3.7,,32,488.0,True" in out)
 
     def test_list(self):
         with pytest.raises(SystemExit) as ex:
             cli(["info", "list", "--region", "eu-central-1", "--csv"])
         self.assertEqual(ex.value.code, 0)
         out, err = self.capsys.readouterr()
-        self.assertTrue("g2.8xlarge,4,32,NVIDIA GRID K520" in out)
+        self.assertTrue("g2.8xlarge,4,,32,NVIDIA GRID K520,,,32,60.0,False,3.088" in out)
 
         # color table
         with pytest.raises(SystemExit) as ex:
