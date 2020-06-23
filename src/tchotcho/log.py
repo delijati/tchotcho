@@ -1,21 +1,27 @@
-import structlog
+import colorlog
+import logging
 import os
-from logma.wech import datlog
 
-LOGGER_NAME = "tchotcho"
-LEVEL = os.getenv("TCHOTCHO_LOG_LEVEL", "INFO")
-LEVEL_EXTERN = os.getenv("TCHOTCHO_LOG_LEVEL", "ERROR")
+LOGGER_NAME = "TT"
+LEVEL = getattr(logging, os.getenv("TCHOTCHO_LOG_LEVEL", "INFO"), None)
+LEVEL_STR = logging.getLevelName(LEVEL)
+if not LEVEL:
+    LEVEL = logging.INFO
 
-config = {
-    "loggers": {
-        LOGGER_NAME: {"handlers": ["default"], "level": LEVEL, "propagate": False}
-    }
-}
+handler = colorlog.StreamHandler()
+lformat = ("[%(log_color)s%(levelname)-.1s%(reset)s] "
+           "%(fg_cyan)s%(asctime)s%(reset)s "
+           "[%(fg_blue)s%(name)s%(reset)s] %(bold)s%(message)s%(reset)s "
+           )
+extra = "%(fg_yellow)st=%(threadName)s p=%(process)s {%(filename)s:%(lineno)d}%(reset)s"
+if LEVEL_STR == "DEBUG":
+    lformat += extra
 
-tty = os.getenv("TCHOTCHO_LOG_TTY", "")
-tty_flag = None
-if tty:
-    tty_flag = tty.lower() in ("an", "on", "true", "1")
-# XXX all other loggers are on level ERROR e.g. boto, ...
-datlog(level=LEVEL_EXTERN, tty=tty_flag, user_config=config)
-log = structlog.get_logger(LOGGER_NAME)
+handler.setFormatter(
+    colorlog.ColoredFormatter(lformat, datefmt="%Y-%m-%d %H:%M:%S"),
+)
+
+log = colorlog.getLogger(LOGGER_NAME)
+log.addHandler(handler)
+log.setLevel(LEVEL)
+log.info("Logging level: %s" % LEVEL_STR)

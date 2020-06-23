@@ -3,7 +3,7 @@ troposphere
 awacs
 click
 requests
-logma
+colorlog
 colorama
 tabulate
 pydantic

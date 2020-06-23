@@ -30,17 +30,22 @@ class StackManager(object):
         return False
 
     def _waiter_callback(self, response):
-        log.info(response)
         if "Stacks" in response:
-            log.info(response["Stacks"])
-            if "Outputs" in response["Stacks"][0]:
-                out = response["Stacks"][0]["Outputs"]
+            stack = response["Stacks"][0]
+            if "Outputs" in stack:
+                out = stack["Outputs"]
                 df = pd.DataFrame(out)
                 self.output = {x["OutputKey"].lower(): x["OutputValue"] for x in out}
                 to_print = tabulate.tabulate(
                     df, headers="keys", tablefmt="fancy_grid", showindex="never"
                 )
+                log.debug(self.output)
                 print(to_print)
+            elif "StackName" in stack:
+                log.info(f"StackName: {stack['StackName']} StackStatus: "
+                         f"{stack['StackStatus']}")
+            else:
+                log.info(stack)
         else:
             log.info(response)
 
