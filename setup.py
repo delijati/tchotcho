@@ -4,7 +4,7 @@ with open("requirements.txt") as f:
     requirements = [x for x in f.read().split("\n") if x and not x.startswith("#")]
 
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 
